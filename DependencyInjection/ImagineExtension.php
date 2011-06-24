@@ -2,13 +2,14 @@
 
 namespace Bundle\ImagineBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\Extension\Extension,
+use Symfony\Component\Config\FileLocator,
     Symfony\Component\DependencyInjection\ContainerBuilder,
     Symfony\Component\DependencyInjection\Definition,
     Symfony\Component\DependencyInjection\Reference,
     Symfony\Component\DependencyInjection\Container,
     Symfony\Component\DependencyInjection\Parameter,
-    Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+    Symfony\Component\DependencyInjection\Loader\XmlFileLoader,
+    Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class ImagineExtension extends Extension
 {
@@ -16,15 +17,14 @@ class ImagineExtension extends Extension
         'imagine' => 'imagine.xml'
     );
 
-    public function imagineLoad($config, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container)
     {
-        $loader = new XmlFileLoader($container, __DIR__.'/../Resources/config');
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load($this->resources['imagine']);
-        
-        $config = (array) $config;
-        foreach ($config as $processorName => $config)
+
+        foreach ($configs as $processorName => $config)
         {
-            $commands = isset ($config['commands']) ? $config['commands'] : array();
+            $commands = isset ($configs['commands']) ? $configs['commands'] : array();
             $processDef = new Definition('Imagine\Processor');
             foreach ($commands as $command)
             {
